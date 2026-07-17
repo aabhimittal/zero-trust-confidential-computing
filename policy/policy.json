@@ -1,0 +1,42 @@
+{
+  "version": "2026.07.1",
+  "rules": [
+    {
+      "id": "block-sensitive-from-public",
+      "effect": "deny",
+      "resources": ["*"],
+      "min_sensitivity": 3,
+      "when": { "networks": ["public"] }
+    },
+    {
+      "id": "crown-jewels-hardware-key",
+      "effect": "allow",
+      "resources": ["signing-service"],
+      "when": {
+        "min_auth": "hardware-key",
+        "managed_device": true,
+        "patched_device": true,
+        "disk_encryption": true,
+        "roles": ["release-eng"],
+        "networks": ["corp"]
+      }
+    },
+    {
+      "id": "sensitive-needs-mfa-managed",
+      "effect": "allow",
+      "resources": ["payroll-db", "customer-pii"],
+      "when": {
+        "min_auth": "mfa",
+        "managed_device": true,
+        "patched_device": true,
+        "networks": ["corp", "vpn"]
+      }
+    },
+    {
+      "id": "wiki-any-authenticated",
+      "effect": "allow",
+      "resources": ["wiki"],
+      "when": { "min_auth": "password" }
+    }
+  ]
+}

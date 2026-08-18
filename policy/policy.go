@@ -17,4 +17,11 @@ var Endorsed []byte
 // EngineVersion identifies the policy-engine build measured alongside the
 // policy. In a real deployment the measurement covers the entire enclave
 // binary; this constant stands in for the engine-code portion of it.
-const EngineVersion = "verity-pdp/1.0.0"
+const EngineVersion = "verity-pdp/1.1.0"
+
+// Signer names the key that published this build, standing in for SGX's
+// MRSIGNER. It lets a relying party endorse a publisher rather than one
+// exact measurement — an option VERITY's own demo deliberately declines,
+// since pinning the measurement is what makes "which policy is enforced" a
+// question attestation can answer.
+const Signer = "verity-release-2026"

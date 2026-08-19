@@ -19,5 +19,31 @@ jobs:
         run: go vet ./...
       - name: test
         run: go test ./...
+      # The gateway, the verifier, the engine, and the audit log are all
+      # reached concurrently in production. A data race on the pinned
+      # attestation key or the log's sequence numbers would be a security
+      # bug, so the race detector is not optional here.
+      - name: test (race detector)
+        run: go test -race -count=1 ./...
       - name: demo runs end-to-end
         run: go run ./cmd/verity demo
+
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      # Policy bytes and request fields are attacker-influenced: a tampered
+      # image is parsed before attestation rejects it, and request fields
+      # arrive over the network. A short smoke run on every push catches
+      # regressions in the "never panic, never fail open" contract; the
+      # seed corpus alone runs as part of the ordinary test job.
+      - name: fuzz smoke
+        run: |
+          for target in FuzzPolicyParsing FuzzRequestHashing FuzzDecideNeverPanicsOrFailsOpen; do
+            echo "::group::$target"
+            go test ./internal/pdp -run "^$" -fuzz "^${target}$" -fuzztime 30s
+            echo "::endgroup::"
+          done

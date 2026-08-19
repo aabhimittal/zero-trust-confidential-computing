@@ -1,5 +1,5 @@
 {
-  "version": "2026.07.1",
+  "version": "2026.08.1",
   "rules": [
     {
       "id": "block-sensitive-from-public",
@@ -19,6 +19,10 @@
         "disk_encryption": true,
         "roles": ["release-eng"],
         "networks": ["corp"]
+      },
+      "obligations": {
+        "reauth_within_seconds": 300,
+        "session_ttl_seconds": 900
       }
     },
     {
@@ -30,6 +34,26 @@
         "managed_device": true,
         "patched_device": true,
         "networks": ["corp", "vpn"]
+      },
+      "obligations": {
+        "session_ttl_seconds": 3600,
+        "mask_fields": ["ssn", "bank_account"]
+      }
+    },
+    {
+      "id": "support-reads-pii-masked",
+      "effect": "allow",
+      "resources": ["customer-pii"],
+      "when": {
+        "min_auth": "mfa",
+        "managed_device": true,
+        "roles": ["support"],
+        "networks": ["corp", "vpn"]
+      },
+      "obligations": {
+        "read_only": true,
+        "session_ttl_seconds": 1800,
+        "mask_fields": ["ssn", "bank_account", "date_of_birth"]
       }
     },
     {
